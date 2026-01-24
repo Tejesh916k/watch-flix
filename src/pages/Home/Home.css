@@ -114,6 +114,41 @@
 
 }
 
+@media (max-width:600px)
+{
+    .hero-caption {
+        padding-left: 3%;
+        bottom: 5%;
+    }
+    .caption-img {
+        width: 60%;
+        max-width: 250px;
+        margin-bottom: 15px;
+    }
+    .hero-caption p {
+        font-size: 12px;
+        max-width: 100%;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+    .hero-btns {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .hero-btns .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    .hero-btns .btn img {
+        width: 16px;
+    }
+    .more-cards {
+        padding-left: 3%;
+        padding-right: 3%;
+    }
+}
+
 @media (max-width:500px)
 {
     .caption-img
@@ -131,5 +166,27 @@
         padding: 4px 10px;
         gap: 5px;
         font-size: 12px;
+    }
+}
+
+@media (max-width:400px)
+{
+    .hero-caption {
+        padding-left: 2%;
+    }
+    .hero-caption p {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+    .hero-btns {
+        gap: 6px;
+        margin-bottom: 15px;
+    }
+    .hero-btns .btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+    .hero-btns .btn img {
+        width: 14px;
     }
 }

@@ -9,45 +9,57 @@ const Player = () => {
 
   const navigate=useNavigate();
 
-  const [apiData,setApiData]=useState({
-    name:"",
-    key:"",
-    published_at:"",
-    typeof:"",
-    
-  })
+  const [apiData, setApiData] = useState({
+    Title: '',
+    Year: '',
+    Poster: '',
+    Plot: '',
+    imdbID: '',
+  });
+  const [trailerUrl, setTrailerUrl] = useState('');
 
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiZjFjNTYyNmFmMDE3MGQ1NWMxNWU0MzE0NzU0OTE0YyIsIm5iZiI6MTczOTQ1NTc0Mi4zNTIsInN1YiI6IjY3YWRmY2ZlOGM1NTc5YmE2ZTM2ZjFmNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ISN3KJYdMe7SXff0SppR_MXIv8iZU5Q8LlKxHvo9YF0'
-    }
-  };
+  // OMDb API does not require headers, just the API key in the URL
+  const OMDB_API_KEY = '81b70767';
 
-  useEffect(()=>{
-    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`, options)
-    .then(res => res.json())
-    .then(res => setApiData(res.results[0]))
-    .catch(err => console.error(err));
-  },[])
+  useEffect(() => {
+    // OMDb: fetch movie details by IMDb ID
+    fetch(`https://www.omdbapi.com/?i=${id}&apikey=${OMDB_API_KEY}`)
+      .then(res => res.json())
+      .then(res => {
+        setApiData(res);
+        // Try to find a trailer on YouTube by movie title
+        if (res.Title) {
+          const ytQuery = encodeURIComponent(res.Title + ' official trailer');
+          setTrailerUrl(`https://www.youtube.com/embed?listType=search&list=${ytQuery}`);
+        }
+      })
+      .catch(err => console.error(err));
+  }, [id]);
   
   
 
   return (
     <div className='player'>
-
-      <img src={back_arrow_icon} alt="" onClick={()=>{navigate(-2)}} />
-      <iframe width="90%" height='90%' src={`https://www.youtube.com/embed/${apiData.key}`}
-      title='trailer' frameBorder='0' allowFullScreen  >  </iframe>
-
-      <div className="player-info">
-
-        <p>{apiData.published_at.slice(0,10)}</p>
-        <p>{apiData.name}</p>
-        <p>{apiData.type}</p>
-
+      <img src={back_arrow_icon} alt="" onClick={() => { navigate(-2) }} />
+      <h2>{apiData.Title} ({apiData.Year})</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {trailerUrl && (
+          <iframe
+            width="800"
+            height="450"
+            src={trailerUrl}
+            title="YouTube trailer"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ margin: '20px 0' }}
+          />
+        )}
+        <img src={apiData.Poster} alt={apiData.Title} style={{ maxWidth: 200, marginBottom: 20 }} />
+        <p style={{ maxWidth: 600 }}>{apiData.Plot}</p>
       </div>
+
+      {/* No extra iframe or OMDb fields, only show trailer above */}
 
     </div>
   )

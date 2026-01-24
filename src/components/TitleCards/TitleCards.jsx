@@ -11,13 +11,8 @@ const TitleCards = ({title,category}) => {
 
   const cardsRef=useRef();
 
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiZjFjNTYyNmFmMDE3MGQ1NWMxNWU0MzE0NzU0OTE0YyIsIm5iZiI6MTczOTQ1NTc0Mi4zNTIsInN1YiI6IjY3YWRmY2ZlOGM1NTc5YmE2ZTM2ZjFmNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ISN3KJYdMe7SXff0SppR_MXIv8iZU5Q8LlKxHvo9YF0'
-    }
-  };
+  // OMDb API does not require headers, just the API key in the URL
+  const OMDB_API_KEY = '81b70767';
   
   
 
@@ -27,27 +22,40 @@ const TitleCards = ({title,category}) => {
     cardsRef.current.scrollLeft +=event.deltaY;
   }
 
-  useEffect(()=>{
+  useEffect(() => {
+    // Use more specific/popular search terms for each category
+    let searchTerm = 'Avengers';
+    if (title === 'Blockbuster Movies') searchTerm = 'Avengers';
+    else if (title === 'Only on Netflix') searchTerm = 'Batman';
+    else if (title === 'Upcoming') searchTerm = 'Spider-Man';
+    else if (title === 'Top Pics for You') searchTerm = 'Harry Potter';
+    else if (category) searchTerm = category;
 
-    fetch(`https://api.themoviedb.org/3/movie/${category?category:"now_playing"}?language=en-US&page=1`, options)
-    .then(res => res.json())
-    .then(res => setApiData(res.results))
-    .catch(err => console.error(err));
+    fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(searchTerm)}&apikey=${OMDB_API_KEY}`)
+      .then(res => res.json())
+      .then(res => setApiData(res.Search || []))
+      .catch(err => console.error(err));
 
-    cardsRef.current.addEventListener('wheel',handleWheel);
-  },[])
+    cardsRef.current.addEventListener('wheel', handleWheel);
+  }, [title, category])
 
   return (
     <div className='title-cards'>
       <h2>{title?title: "Popular On NetFlix"}</h2>
        <div className="card-list" ref={cardsRef}>
-        {apiData.map((card,index)=>
-        {
-          return <Link to={`/player/${card.id}`} className="card" key={index}>
-            <img src={`https://image.tmdb.org/t/p/w500`+card.backdrop_path} alt="" />
-            <p>{card.original_title}</p>
-          </Link>
-        })}
+        {apiData.length === 0 ? (
+          <p style={{ color: 'white', padding: '2rem' }}>No movies found.</p>
+        ) : (
+          apiData.map((card, index) => {
+            const ytSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(card.Title + ' official trailer')}`;
+            return (
+              <a href={ytSearchUrl} className="card" key={index} target="_blank" rel="noopener noreferrer">
+                <img src={card.Poster !== 'N/A' ? card.Poster : 'https://via.placeholder.com/300x450?text=No+Image'} alt={card.Title} />
+                <p>{card.Title}</p>
+              </a>
+            );
+          })
+        )}
        </div>
     </div>
   )
